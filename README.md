@@ -2,6 +2,10 @@
 
 This is a Fabric mod for Minecraft that automates the process of fishing in Hypixel Skyblock. It automatically reels in fish, and can automatically recast the fishing rod, and has a feature to auto kill the sea creatures spawned.
 
+## ❓ How to not get banned?
+
+-  **use only /autofisher on and /autofisher recast on** and stay at your computer while you're fishing. move around every minute or so. impossible to get banned. using /autofisher recast is recommended at like bayou but not recommended to use while lava fishing 
+
 ## ❓ FAQ:
 
 -   **How do I use this?** Download the mod from Releases, drop it in your mods folder on Fabric 1.21.5, go ingame and use `/autofisher on` and cast a fishing rod. The mod will reel in for you. For further usage refer to the Commands section.
@@ -13,7 +17,7 @@ This is a Fabric mod for Minecraft that automates the process of fishing in Hypi
 ## ✨ Features
 
 -   **Auto Fish:** Fully Undetected, just fishes for you whenever the !!! appears.
--   **Auto Recast:** Risky, wouldn't recommend using while afk.
+-   **Auto Recast:** Undetected, but Do not use while AFK 
 -   **Fireveil Autokill:** A little risky and unfinished. How to use this? Put your fireveil wand in your hotbar slot 2, and it will auto kill mobs that are pulled up based on chat message of the sea creature spawning. CURRENTLY ONLY WORKING FOR BACKWATER BAYOU.
 -   **Humanized Delays:** All the delays are fully humanized with multiple layers of randomization and they're configurable to better mimic human behavior and avoid detection.
 -   **Debug Mode:** A debug mode is available which can be used to view the delays between actions.
