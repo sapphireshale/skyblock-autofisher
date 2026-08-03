@@ -8,7 +8,7 @@ This is a Fabric mod for Minecraft that automates the process of fishing in Hypi
 
 ## ❓ FAQ:
 
--   **How do I use this?** Download the mod from Releases, drop it in your mods folder on Fabric 1.21.5, go ingame and use `/autofisher on` and cast a fishing rod. The mod will reel in for you. For further usage refer to the Commands section.
+-   **How do I use this?** Download the mod from Releases, drop it in your mods folder on Fabric 1.21.11, go ingame and use `/autofisher on` and cast a fishing rod. The mod will reel in for you. For further usage refer to the Commands section.
 -   **Why did you make this?** I enjoy coding things and I love automating stuff.
 -   **How come it's open source?** I don't play skyblock much anymore, and I don't have much free time anymore to work on this and make it anything really good or impressive, I hope my mod would be helpful to whoever HATES fishing, and I hope that people would come together to improve my mod. Please don't steal my code and sell it for pennies in your shitty discord servers, that would not be very cool.
 -   **I am illiterate and I think this is a rat.** Don't download it then lol. You can look through the source and build it yourself if you really want the macro.
