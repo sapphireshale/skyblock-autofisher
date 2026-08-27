@@ -16,7 +16,7 @@ public class AutoFisherConfig {
 
     public static boolean enabled = true; // New: Overall mod enable/disable 
     public static boolean enableRecast = true;
-    public static boolean debugMode = true; // Default to true for debugging
+    public static boolean debugMode = false; // Default to false
     public static boolean fireveilEnabled = false; // Default to false
     public static int fireveilDelayToSlot2_base = 100;
     public static int fireveilDelayToSlot2_random = 80;

@@ -1,25 +1,25 @@
 package com.example;
 
 import com.example.autofisher.config.AutoFisherConfig;
+import com.example.mixin.client.PlayerInventoryMixin;
 import net.fabricmc.api.ClientModInitializer;
+import net.fabricmc.fabric.api.client.command.v2.ClientCommands;
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.message.v1.ClientReceiveMessageEvents;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.decoration.ArmorStandEntity;
-import net.minecraft.text.Text;
-import net.minecraft.util.Hand;
+import net.minecraft.client.Minecraft;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.protocol.game.ServerboundSetCarriedItemPacket;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.decoration.ArmorStand;
+
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
-import net.minecraft.network.packet.c2s.play.UpdateSelectedSlotC2SPacket;
-import com.example.mixin.client.PlayerInventoryMixin;
-
-import static net.fabricmc.fabric.api.client.command.v2.ClientCommandManager.literal;
 
 public class ExampleModClient implements ClientModInitializer {
 
@@ -90,85 +90,95 @@ public class ExampleModClient implements ClientModInitializer {
 		AutoFisherConfig.load(); // Load config on client initialization
 
 		ClientCommandRegistrationCallback.EVENT.register((dispatcher, registryAccess) -> {
-			dispatcher.register(literal("autofisher")
+			dispatcher.register(ClientCommands.literal("autofisher")
 					.executes(context -> {
-						context.getSource().sendFeedback(Text.literal("AutoFisher is " + (AutoFisherConfig.enabled ? "enabled" : "disabled") + ". Recast is " + (AutoFisherConfig.enableRecast ? "enabled" : "disabled") + ". Debug mode is " + (AutoFisherConfig.debugMode ? "on" : "off") + ". Fireveil is " + (AutoFisherConfig.fireveilEnabled ? "enabled" : "disabled") + "."));
+						context.getSource().sendFeedback(Component.literal("AutoFisher is " + (AutoFisherConfig.enabled ? "enabled" : "disabled") + ". Recast is " + (AutoFisherConfig.enableRecast ? "enabled" : "disabled") + ". Debug mode is " + (AutoFisherConfig.debugMode ? "on" : "off") + ". Fireveil is " + (AutoFisherConfig.fireveilEnabled ? "enabled" : "disabled") + "."));
 						return 1;
 					})
-					.then(literal("on")
+					.then(ClientCommands.literal("on")
 							.executes(context -> {
 								AutoFisherConfig.enabled = true;
 								AutoFisherConfig.save();
-								context.getSource().sendFeedback(Text.literal("AutoFisher enabled."));
+								context.getSource().sendFeedback(Component.literal("AutoFisher enabled."));
 								return 1;
 							}))
-					.then(literal("off")
+					.then(ClientCommands.literal("off")
 							.executes(context -> {
 								AutoFisherConfig.enabled = false;
 								AutoFisherConfig.save();
-								context.getSource().sendFeedback(Text.literal("AutoFisher disabled."));
+								context.getSource().sendFeedback(Component.literal("AutoFisher disabled."));
 								return 1;
 							}))
-					.then(literal("recast")
-							.then(literal("on")
+					.then(ClientCommands.literal("recast")
+							.then(ClientCommands.literal("on")
 									.executes(context -> {
 										AutoFisherConfig.enableRecast = true;
 										AutoFisherConfig.save();
-										context.getSource().sendFeedback(Text.literal("AutoFisher recast enabled."));
+										context.getSource().sendFeedback(Component.literal("AutoFisher recast enabled."));
 										return 1;
 									}))
-							.then(literal("off")
+							.then(ClientCommands.literal("off")
 									.executes(context -> {
 										AutoFisherConfig.enableRecast = false;
 										AutoFisherConfig.save();
-										context.getSource().sendFeedback(Text.literal("AutoFisher recast disabled."));
+										context.getSource().sendFeedback(Component.literal("AutoFisher recast disabled."));
 										return 1;
 									})))
-					.then(literal("debug")
-							.then(literal("on")
+					.then(ClientCommands.literal("debug")
+							.then(ClientCommands.literal("on")
 									.executes(context -> {
 										AutoFisherConfig.debugMode = true;
 										AutoFisherConfig.save();
-										context.getSource().sendFeedback(Text.literal("AutoFisher debug mode enabled."));
+										context.getSource().sendFeedback(Component.literal("AutoFisher debug mode enabled."));
 										return 1;
 									}))
-							.then(literal("off")
+							.then(ClientCommands.literal("off")
 									.executes(context -> {
 										AutoFisherConfig.debugMode = false;
 										AutoFisherConfig.save();
-										context.getSource().sendFeedback(Text.literal("AutoFisher debug mode disabled."));
+										context.getSource().sendFeedback(Component.literal("AutoFisher debug mode disabled."));
 										return 1;
 									})))
-					.then(literal("fireveil")
-							.then(literal("on")
+					.then(ClientCommands.literal("fireveil")
+							.then(ClientCommands.literal("on")
 									.executes(context -> {
 										AutoFisherConfig.fireveilEnabled = true;
 										AutoFisherConfig.save();
-										context.getSource().sendFeedback(Text.literal("AutoFisher Fireveil enabled."));
+										context.getSource().sendFeedback(Component.literal("AutoFisher Fireveil enabled."));
 										return 1;
 									}))
-							.then(literal("off")
+							.then(ClientCommands.literal("off")
 									.executes(context -> {
 										AutoFisherConfig.fireveilEnabled = false;
 										AutoFisherConfig.save();
-										context.getSource().sendFeedback(Text.literal("AutoFisher Fireveil disabled."));
+										context.getSource().sendFeedback(Component.literal("AutoFisher Fireveil disabled."));
 										return 1;
 									})))
 			);
 		});
 
+		// Listen to incoming chat and game messages via Fabric API
+		ClientReceiveMessageEvents.GAME.register((message, overlay) -> {
+			if (!overlay) {
+				handleChatMessage(message);
+			}
+		});
+
+		ClientReceiveMessageEvents.CHAT.register((message, signedMessage, sender, params, receptionTimestamp) -> {
+			handleChatMessage(message);
+		});
+
 		ClientTickEvents.END_CLIENT_TICK.register(client -> {
 			if (!AutoFisherConfig.enabled) return; // Only run if mod is enabled
 
-			if (client.world != null && client.player != null) {
+			if (client.level != null && client.player != null) {
 				long currentTime = System.currentTimeMillis();
 				if (currentTime - lastDetectionTime > DETECTION_COOLDOWN_MS) {
-					for (Entity entity : client.world.getEntities()) {
-						if (entity instanceof ArmorStandEntity) {
-							ArmorStandEntity armorStand = (ArmorStandEntity) entity;
+					for (Entity entity : client.level.entitiesForRendering()) {
+						if (entity instanceof ArmorStand armorStand) {
 							if (armorStand.hasCustomName() && armorStand.getCustomName().getString().equals(FISHING_HOLOGRAM_NAME)) {
 								if (AutoFisherConfig.debugMode) {
-									client.player.sendMessage(Text.literal("Fishing hologram detected! Simulating right click..."), false);
+									client.player.sendSystemMessage(Component.literal("Fishing hologram detected! Simulating right click..."));
 								}
 								lastDetectionTime = currentTime;
 
@@ -179,12 +189,12 @@ public class ExampleModClient implements ClientModInitializer {
 								int initialClickDelay = baseDelay + randomOffset1 + randomOffset2; // Total delay will be between 56ms and 129ms
 
 								scheduler.schedule(() -> {
-									MinecraftClient.getInstance().execute(() -> {
-										if (MinecraftClient.getInstance().interactionManager != null && MinecraftClient.getInstance().player != null) {
+									Minecraft.getInstance().execute(() -> {
+										if (Minecraft.getInstance().gameMode != null && Minecraft.getInstance().player != null) {
 											// First right-click to reel in the fish
-											MinecraftClient.getInstance().interactionManager.interactItem(MinecraftClient.getInstance().player, Hand.MAIN_HAND);
+											Minecraft.getInstance().gameMode.useItem(Minecraft.getInstance().player, InteractionHand.MAIN_HAND);
 											if (AutoFisherConfig.debugMode) {
-												MinecraftClient.getInstance().player.sendMessage(Text.literal("Right click (reel in) simulated after " + initialClickDelay + "ms."), false);
+												Minecraft.getInstance().player.sendSystemMessage(Component.literal("Right click (reel in) simulated after " + initialClickDelay + "ms."));
 											}
 
 											// Handle recast logic based on user's refined requirements
@@ -199,20 +209,20 @@ public class ExampleModClient implements ClientModInitializer {
 												// This will be the default recast if Fireveil is disabled,
 												// or the "just recast" if Fireveil is enabled but no trigger message appears.
 												if (AutoFisherConfig.debugMode) {
-													client.player.sendMessage(Text.literal("Scheduling initial recast. Fireveil enabled: " + AutoFisherConfig.fireveilEnabled + ". Recast delay: " + finalRecastDelay + "ms."), false);
+													client.player.sendSystemMessage(Component.literal("Scheduling initial recast. Fireveil enabled: " + AutoFisherConfig.fireveilEnabled + ". Recast delay: " + finalRecastDelay + "ms."));
 												}
 												recastTask = scheduler.schedule(() -> {
-													MinecraftClient.getInstance().execute(() -> {
-														if (MinecraftClient.getInstance().interactionManager != null && MinecraftClient.getInstance().player != null) {
-															MinecraftClient.getInstance().interactionManager.interactItem(MinecraftClient.getInstance().player, Hand.MAIN_HAND);
+													Minecraft.getInstance().execute(() -> {
+														if (Minecraft.getInstance().gameMode != null && Minecraft.getInstance().player != null) {
+															Minecraft.getInstance().gameMode.useItem(Minecraft.getInstance().player, InteractionHand.MAIN_HAND);
 															if (AutoFisherConfig.debugMode) {
-																client.player.sendMessage(Text.literal("Right click (initial recast) simulated after " + finalRecastDelay + "ms."), false);
+																client.player.sendSystemMessage(Component.literal("Right click (initial recast) simulated after " + finalRecastDelay + "ms."));
 															}
 														}
 													});
 												}, finalRecastDelay, TimeUnit.MILLISECONDS);
 											} else if (AutoFisherConfig.debugMode) {
-												client.player.sendMessage(Text.literal("Recast not scheduled: enableRecast=" + AutoFisherConfig.enableRecast), false);
+												client.player.sendSystemMessage(Component.literal("Recast not scheduled: enableRecast=" + AutoFisherConfig.enableRecast));
 											}
 										}
 									});
@@ -227,91 +237,98 @@ public class ExampleModClient implements ClientModInitializer {
 
 	}
 
-	public static void handleChatMessage(Text message) {
-		MinecraftClient.getInstance().execute(() -> {
-			if (MinecraftClient.getInstance() != null && MinecraftClient.getInstance().player != null && AutoFisherConfig.debugMode) {
-				MinecraftClient.getInstance().player.sendMessage(Text.literal("DEBUG: handleChatMessage called."), false);
-			}
+	public static void handleChatMessage(Component message) {
+		if (!AutoFisherConfig.enabled || !AutoFisherConfig.fireveilEnabled) {
+			return;
+		}
 
-			if (!AutoFisherConfig.enabled || !AutoFisherConfig.fireveilEnabled) {
-				return;
-			}
+		if (message == null) {
+			return;
+		}
 
-			String chatMessage = message.getString();
-			String cleanChatMessage = chatMessage.replaceAll("§[0-9a-fk-or]", "").trim();
-			boolean triggerFireveil = false;
+		String chatMessage = message.getString();
+		if (chatMessage == null || chatMessage.isEmpty()) {
+			return;
+		}
 
-			if (AutoFisherConfig.debugMode) {
-				MinecraftClient.getInstance().player.sendMessage(Text.literal("DEBUG: Raw chat message: '" + chatMessage + "'"), false);
-				MinecraftClient.getInstance().player.sendMessage(Text.literal("DEBUG: Clean chat message: '" + cleanChatMessage + "'"), false);
-			}
+		// Prevent infinite recursion from debug/system messages sent by the mod itself
+		if (chatMessage.startsWith("DEBUG:") || chatMessage.startsWith("AutoFisher")
+				|| chatMessage.startsWith("Fishing hologram") || chatMessage.startsWith("Right click")
+				|| chatMessage.startsWith("Switched to") || chatMessage.startsWith("Switched back")
+				|| chatMessage.startsWith("Fireveil") || chatMessage.startsWith("Scheduling initial")
+				|| chatMessage.startsWith("Cancelled initial") || chatMessage.startsWith("Recast")) {
+			return;
+		}
 
-			for (String fireveilTrigger : fireveilMessages) {
-				if (cleanChatMessage.equals(fireveilTrigger)) {
-					triggerFireveil = true;
-					if (AutoFisherConfig.debugMode) {
-						MinecraftClient.getInstance().player.sendMessage(Text.literal("DEBUG: Fireveil trigger matched: '" + fireveilTrigger + "'"), false);
-					}
-					break;
-				}
-			}
+		String cleanChatMessage = chatMessage.replaceAll("§[0-9a-fk-or]", "").trim();
+		boolean triggerFireveil = false;
 
-			if (triggerFireveil) {
-				triggerFireveilSequence();
+		for (String fireveilTrigger : fireveilMessages) {
+			if (cleanChatMessage.equals(fireveilTrigger)) {
+				triggerFireveil = true;
+				break;
 			}
-		});
+		}
+
+		if (triggerFireveil) {
+			Minecraft client = Minecraft.getInstance();
+			if (client != null && client.player != null && AutoFisherConfig.debugMode) {
+				client.player.sendSystemMessage(Component.literal("DEBUG: Fireveil trigger matched: '" + cleanChatMessage + "'"));
+			}
+			triggerFireveilSequence();
+		}
 	}
 
 	public static void triggerFireveilSequence() {
 		long currentTime = System.currentTimeMillis();
 		if (currentTime - lastFireveilTime < 5000) {
 			if (AutoFisherConfig.debugMode) {
-				MinecraftClient.getInstance().player.sendMessage(Text.literal("Fireveil sequence cancelled, already ran within the last 5 seconds."), false);
+				Minecraft.getInstance().player.sendSystemMessage(Component.literal("Fireveil sequence cancelled, already ran within the last 5 seconds."));
 			}
 			return;
 		}
 		lastFireveilTime = currentTime;
 
-		MinecraftClient client = MinecraftClient.getInstance();
-		if (client.player != null && client.interactionManager != null) {
+		Minecraft client = Minecraft.getInstance();
+		if (client.player != null && client.gameMode != null && client.getConnection() != null) {
 			if (AutoFisherConfig.debugMode) {
-				client.player.sendMessage(Text.literal("Fireveil trigger message detected! Initiating Fireveil sequence..."), false);
+				client.player.sendSystemMessage(Component.literal("Fireveil trigger message detected! Initiating Fireveil sequence..."));
 			}
 
-			PlayerInventoryMixin playerInventoryMixin = (PlayerInventoryMixin) client.player.getInventory();
-			int originalSlot = playerInventoryMixin.getSelectedSlot();
+			PlayerInventoryMixin inventoryAccessor = (PlayerInventoryMixin) client.player.getInventory();
+			int originalSlot = inventoryAccessor.getSelectedSlot();
 			Random random = new Random();
 
 			// Delay before switching to slot 2
 			int delayToSlot2 = AutoFisherConfig.fireveilDelayToSlot2_base + random.nextInt(AutoFisherConfig.fireveilDelayToSlot2_random);
 			scheduler.schedule(() -> {
 				client.execute(() -> {
-					if (client.player != null && client.interactionManager != null) {
-						playerInventoryMixin.setSelectedSlot(1); // Switch to 2nd slot (index 1)
-						client.getNetworkHandler().sendPacket(new UpdateSelectedSlotC2SPacket(1));
+					if (client.player != null && client.gameMode != null && client.getConnection() != null) {
+						inventoryAccessor.setSelectedSlot(1); // Switch to 2nd slot (index 1)
+						client.getConnection().send(new ServerboundSetCarriedItemPacket(1));
 						if (AutoFisherConfig.debugMode) {
-							client.player.sendMessage(Text.literal("Switched to slot 2 after " + delayToSlot2 + "ms."), false);
+							client.player.sendSystemMessage(Component.literal("Switched to slot 2 after " + delayToSlot2 + "ms."));
 						}
 
 						// Delay before right-click
 						int delayToRightClick = AutoFisherConfig.fireveilDelayToRightClick_base + random.nextInt(AutoFisherConfig.fireveilDelayToRightClick_random);
 						scheduler.schedule(() -> {
 							client.execute(() -> {
-								if (client.player != null && client.interactionManager != null) {
-									client.interactionManager.interactItem(client.player, Hand.MAIN_HAND);
+								if (client.player != null && client.gameMode != null && client.getConnection() != null) {
+									client.gameMode.useItem(client.player, InteractionHand.MAIN_HAND);
 									if (AutoFisherConfig.debugMode) {
-										client.player.sendMessage(Text.literal("Right-clicked after " + delayToRightClick + "ms."), false);
+										client.player.sendSystemMessage(Component.literal("Right-clicked after " + delayToRightClick + "ms."));
 									}
 
 									// Delay before switching back to original slot
 									int delayToOriginalSlot = AutoFisherConfig.fireveilDelayToOriginalSlot_base + random.nextInt(AutoFisherConfig.fireveilDelayToOriginalSlot_random);
 									scheduler.schedule(() -> {
 										client.execute(() -> {
-											if (client.player != null && client.interactionManager != null) {
-												playerInventoryMixin.setSelectedSlot(originalSlot);
-												client.getNetworkHandler().sendPacket(new UpdateSelectedSlotC2SPacket(originalSlot));
+											if (client.player != null && client.gameMode != null && client.getConnection() != null) {
+												inventoryAccessor.setSelectedSlot(originalSlot);
+												client.getConnection().send(new ServerboundSetCarriedItemPacket(originalSlot));
 												if (AutoFisherConfig.debugMode) {
-													client.player.sendMessage(Text.literal("Switched back to original slot " + (originalSlot + 1) + " after " + delayToOriginalSlot + "ms."), false);
+													client.player.sendSystemMessage(Component.literal("Switched back to original slot " + (originalSlot + 1) + " after " + delayToOriginalSlot + "ms."));
 												}
 											}
 										});
@@ -322,7 +339,7 @@ public class ExampleModClient implements ClientModInitializer {
 										if (recastTask != null && !recastTask.isDone()) {
 											recastTask.cancel(false);
 											if (AutoFisherConfig.debugMode) {
-												client.player.sendMessage(Text.literal("Cancelled initial recast task due to Fireveil trigger."), false);
+												client.player.sendSystemMessage(Component.literal("Cancelled initial recast task due to Fireveil trigger."));
 											}
 										}
 
@@ -333,11 +350,11 @@ public class ExampleModClient implements ClientModInitializer {
 										int finalRecastDelay = 390 + (randomDelay1 + randomDelay2 + randomDelay3) % (980 - 390 + 1); // Scale to 390-980
 
 										recastTask = scheduler.schedule(() -> {
-											MinecraftClient.getInstance().execute(() -> {
-												if (MinecraftClient.getInstance().interactionManager != null && MinecraftClient.getInstance().player != null) {
-													MinecraftClient.getInstance().interactionManager.interactItem(MinecraftClient.getInstance().player, Hand.MAIN_HAND);
+											Minecraft.getInstance().execute(() -> {
+												if (Minecraft.getInstance().gameMode != null && Minecraft.getInstance().player != null) {
+													Minecraft.getInstance().gameMode.useItem(Minecraft.getInstance().player, InteractionHand.MAIN_HAND);
 													if (AutoFisherConfig.debugMode) {
-														client.player.sendMessage(Text.literal("Right click (recast) simulated after " + finalRecastDelay + "ms."), false);
+														client.player.sendSystemMessage(Component.literal("Right click (recast) simulated after " + finalRecastDelay + "ms."));
 													}
 												}
 											});
