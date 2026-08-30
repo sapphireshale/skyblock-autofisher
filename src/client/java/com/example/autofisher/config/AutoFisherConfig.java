@@ -24,6 +24,11 @@ public class AutoFisherConfig {
     public static int fireveilDelayToRightClick_random = 70;
     public static int fireveilDelayToOriginalSlot_base = 90;
     public static int fireveilDelayToOriginalSlot_random = 80;
+    public static int baseDelay = 56;
+    public static int baseRecastDelay = 390;
+    public static int randomDelay1 = 37;
+    public static int randomDelay2 = 38;
+    public static int randomDelay3 = 200;
 
     public static void load() {
         if (!Files.exists(CONFIG_FILE)) {
@@ -43,6 +48,12 @@ public class AutoFisherConfig {
             fireveilDelayToRightClick_random = Integer.parseInt(properties.getProperty("fireveilDelayToRightClick_random", "70"));
             fireveilDelayToOriginalSlot_base = Integer.parseInt(properties.getProperty("fireveilDelayToOriginalSlot_base", "90"));
             fireveilDelayToOriginalSlot_random = Integer.parseInt(properties.getProperty("fireveilDelayToOriginalSlot_random", "80"));
+            baseDelay = Integer.parseInt(properties.getProperty("baseDelay", "56"));
+            baseRecastDelay = Integer.parseInt(properties.getProperty("baseRecastDelay", "390"));
+            randomDelay1 = Integer.parseInt(properties.getProperty("randomDelay1", "37"));
+            randomDelay2 = Integer.parseInt(properties.getProperty("randomDelay2", "38"));
+            randomDelay3 = Integer.parseInt(properties.getProperty("randomDelay3", "100"));
+            
         } catch (IOException | NumberFormatException e) {
             System.err.println("Failed to load AutoFisher config: " + e.getMessage());
             // Reset to default values on error
@@ -67,6 +78,11 @@ public class AutoFisherConfig {
         properties.setProperty("fireveilDelayToRightClick_random", String.valueOf(fireveilDelayToRightClick_random));
         properties.setProperty("fireveilDelayToOriginalSlot_base", String.valueOf(fireveilDelayToOriginalSlot_base));
         properties.setProperty("fireveilDelayToOriginalSlot_random", String.valueOf(fireveilDelayToOriginalSlot_random));
+        properties.setProperty("baseDelay", String.valueOf(baseDelay));
+        properties.setProperty("baseRecastDelay", String.valueOf(baseRecastDelay));
+        properties.setProperty("randomDelay1", String.valueOf(randomDelay1));
+        properties.setProperty("randomDelay2", String.valueOf(randomDelay2));
+        properties.setProperty("randomDelay3", String.valueOf(randomDelay3));
 
         try (var writer = Files.newBufferedWriter(CONFIG_FILE)) {
             properties.store(writer, "AutoFisher Configuration");
