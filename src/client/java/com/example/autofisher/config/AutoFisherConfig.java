@@ -26,6 +26,8 @@ public class AutoFisherConfig {
     public static int fireveilDelayToOriginalSlot_random = 80;
     public static int baseDelay = 56;
     public static int baseRecastDelay = 390;
+    public static int minRecastDelay = 390;
+    public static int maxRecastDelay = 980;
     public static int randomDelay1 = 37;
     public static int randomDelay2 = 38;
     public static int randomDelay3 = 200;
@@ -50,6 +52,8 @@ public class AutoFisherConfig {
             fireveilDelayToOriginalSlot_random = Integer.parseInt(properties.getProperty("fireveilDelayToOriginalSlot_random", "80"));
             baseDelay = Integer.parseInt(properties.getProperty("baseDelay", "56"));
             baseRecastDelay = Integer.parseInt(properties.getProperty("baseRecastDelay", "390"));
+            minRecastDelay = Integer.parseInt(properties.getProperty("minRecastDelay", "390"));
+            maxRecastDelay = Integer.parseInt(properties.getProperty("maxRecastDelay", "980"));
             randomDelay1 = Integer.parseInt(properties.getProperty("randomDelay1", "37"));
             randomDelay2 = Integer.parseInt(properties.getProperty("randomDelay2", "38"));
             randomDelay3 = Integer.parseInt(properties.getProperty("randomDelay3", "100"));
@@ -80,6 +84,8 @@ public class AutoFisherConfig {
         properties.setProperty("fireveilDelayToOriginalSlot_random", String.valueOf(fireveilDelayToOriginalSlot_random));
         properties.setProperty("baseDelay", String.valueOf(baseDelay));
         properties.setProperty("baseRecastDelay", String.valueOf(baseRecastDelay));
+        properties.setProperty("minRecastDelay", String.valueOf(minRecastDelay));
+        properties.setProperty("maxRecastDelay", String.valueOf(maxRecastDelay));
         properties.setProperty("randomDelay1", String.valueOf(randomDelay1));
         properties.setProperty("randomDelay2", String.valueOf(randomDelay2));
         properties.setProperty("randomDelay3", String.valueOf(randomDelay3));
