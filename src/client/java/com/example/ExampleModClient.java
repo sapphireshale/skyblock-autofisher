@@ -183,10 +183,10 @@ public class ExampleModClient implements ClientModInitializer {
 								lastDetectionTime = currentTime;
 
 								// Simulate human-like delay before right-clicking (complex randomization: 56-129ms)
-								int baseDelay = 56;
-								int randomOffset1 = random.nextInt(37); // 0-36ms
-								int randomOffset2 = random.nextInt(38); // 0-37ms
-								int initialClickDelay = baseDelay + randomOffset1 + randomOffset2; // Total delay will be between 56ms and 129ms
+								//int baseDelay = 56;
+								//int randomOffset1 = random.nextInt(37); // 0-36ms
+								//int randomOffset2 = random.nextInt(38); // 0-37ms
+								int initialClickDelay = AutoFisherConfig.baseDelay + AutoFisherConfig.randomDelay1 + AutoFisherConfig.randomDelay2; // Total delay will be between 56ms and 129ms
 
 								scheduler.schedule(() -> {
 									Minecraft.getInstance().execute(() -> {
@@ -200,10 +200,10 @@ public class ExampleModClient implements ClientModInitializer {
 											// Handle recast logic based on user's refined requirements
 											if (AutoFisherConfig.enableRecast) {
 												// Generate a random recast delay between 390ms and 980ms
-												int randomDelay1 = random.nextInt(200); // 0-199
-												int randomDelay2 = random.nextInt(200); // 0-199
-												int randomDelay3 = random.nextInt(200); // 0-199
-												int finalRecastDelay = 390 + (randomDelay1 + randomDelay2 + randomDelay3) % (980 - 390 + 1); // Scale to 390-980
+												//int randomDelay1 = random.nextInt(200); // 0-199
+												//int randomDelay2 = random.nextInt(200); // 0-199
+												//int randomDelay3 = random.nextInt(200); // 0-199
+												int finalRecastDelay = AutoFisherConfig.baseRecastDelay + (AutoFisherConfig.randomDelay1 + AutoFisherConfig.randomDelay2 + AutoFisherConfig.randomDelay3) % (AutoFisherConfig.maxRecastDelay - AutoFisherConfig.minRecastDelay + 1); // Scale to 390-980
 
 												// Always schedule a recast if enableRecast is true.
 												// This will be the default recast if Fireveil is disabled,
