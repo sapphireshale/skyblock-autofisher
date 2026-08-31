@@ -31,6 +31,7 @@ public class AutoFisherConfig {
     public static int randomDelay1 = 37;
     public static int randomDelay2 = 38;
     public static int randomDelay3 = 200;
+    public static boolean slugfish = false;
 
     public static void load() {
         if (!Files.exists(CONFIG_FILE)) {
@@ -57,6 +58,7 @@ public class AutoFisherConfig {
             randomDelay1 = Integer.parseInt(properties.getProperty("randomDelay1", "37"));
             randomDelay2 = Integer.parseInt(properties.getProperty("randomDelay2", "38"));
             randomDelay3 = Integer.parseInt(properties.getProperty("randomDelay3", "100"));
+            slugfish = Integer.parseInt(properties.getProperty("slugfish", "false"));
             
         } catch (IOException | NumberFormatException e) {
             System.err.println("Failed to load AutoFisher config: " + e.getMessage());
@@ -89,6 +91,7 @@ public class AutoFisherConfig {
         properties.setProperty("randomDelay1", String.valueOf(randomDelay1));
         properties.setProperty("randomDelay2", String.valueOf(randomDelay2));
         properties.setProperty("randomDelay3", String.valueOf(randomDelay3));
+        properties.setProperty("slugfish", String.valueOf(slugfish));
 
         try (var writer = Files.newBufferedWriter(CONFIG_FILE)) {
             properties.store(writer, "AutoFisher Configuration");
