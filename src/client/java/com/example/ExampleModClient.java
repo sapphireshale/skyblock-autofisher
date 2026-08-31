@@ -25,6 +25,7 @@ public class ExampleModClient implements ClientModInitializer {
 
 	private static final String FISHING_HOLOGRAM_NAME = "!!!";
 	private long lastDetectionTime = 0;
+	pritate boolean temp = false;
 	private static final long DETECTION_COOLDOWN_MS = 1000; // 1 second cooldown for detection
 	private static long lastFireveilTime = 0;
 	private final Random random = new Random();
