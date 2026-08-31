@@ -16,6 +16,7 @@ public class AutoFisherConfig {
 
     public static boolean enabled = true; // New: Overall mod enable/disable 
     public static boolean enableRecast = true;
+    public static boolean slugfish = false;
     public static boolean debugMode = false; // Default to false
     public static boolean fireveilEnabled = false; // Default to false
     public static int fireveilDelayToSlot2_base = 100;
@@ -44,6 +45,7 @@ public class AutoFisherConfig {
             enableRecast = Boolean.parseBoolean(properties.getProperty("enableRecast", "true"));
             debugMode = Boolean.parseBoolean(properties.getProperty("debugMode", "true"));
             fireveilEnabled = Boolean.parseBoolean(properties.getProperty("fireveilEnabled", "false"));
+            slugfish = Boolean.parseBoolean(properties.getProperty("slugfish", "false"));
             fireveilDelayToSlot2_base = Integer.parseInt(properties.getProperty("fireveilDelayToSlot2_base", "100"));
             fireveilDelayToSlot2_random = Integer.parseInt(properties.getProperty("fireveilDelayToSlot2_random", "80"));
             fireveilDelayToRightClick_base = Integer.parseInt(properties.getProperty("fireveilDelayToRightClick_base", "80"));
@@ -76,6 +78,7 @@ public class AutoFisherConfig {
         properties.setProperty("enableRecast", String.valueOf(enableRecast));
         properties.setProperty("debugMode", String.valueOf(debugMode));
         properties.setProperty("fireveilEnabled", String.valueOf(fireveilEnabled));
+        properties.setProperty("slugfish", String.valueOf(slugfish));
         properties.setProperty("fireveilDelayToSlot2_base", String.valueOf(fireveilDelayToSlot2_base));
         properties.setProperty("fireveilDelayToSlot2_random", String.valueOf(fireveilDelayToSlot2_random));
         properties.setProperty("fireveilDelayToRightClick_base", String.valueOf(fireveilDelayToRightClick_base));
