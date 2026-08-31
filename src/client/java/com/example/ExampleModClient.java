@@ -182,10 +182,10 @@ public class ExampleModClient implements ClientModInitializer {
 									client.player.sendSystemMessage(Component.literal("Fishing hologram detected! Simulating right click..."));
 								}
 								lastDetectionTime = currentTime;
-								if (slugfish == true && temp = true) {
+								if (AutoFisherConfig.slugfish && (temp != false)) {
 									temp = false;
 								}
-								if (temp == false) {
+								if (temp != true) {
 									// Simulate human-like delay before right-clicking (complex randomization: 56-129ms)
 									//int baseDelay = 56;
 									//int randomOffset1 = random.nextInt(37); // 0-36ms
@@ -231,10 +231,10 @@ public class ExampleModClient implements ClientModInitializer {
 											}
 										});
 									}, initialClickDelay, TimeUnit.MILLISECONDS);
-									break; // Only log once per detection cycle
-									if (slugfish == true) {
+									if (AutoFisherConfig.slugfish == true) {
 										temp = true;
 									}
+									break; // Only log once per detection cycle
 								}
 							}
 						}
