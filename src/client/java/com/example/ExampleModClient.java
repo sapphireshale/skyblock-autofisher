@@ -182,12 +182,12 @@ public class ExampleModClient implements ClientModInitializer {
 								}
 								lastDetectionTime = currentTime;
 								if (slugfish) {
-									 if (temp == true){
-										 temp == false;
+									 if (temp){
+										 temp = false;
 										 break;
 									 }
 									else {
-										temp == true;
+										temp = true;
 									}
 								}
 
