@@ -26,7 +26,6 @@ public class ExampleModClient implements ClientModInitializer {
 	private static final String FISHING_HOLOGRAM_NAME = "!!!";
 	private long lastDetectionTime = 0;
 	private static final long DETECTION_COOLDOWN_MS = 1000; // 1 second cooldown for detection
-	private boolean temp = false;
 	private static long lastFireveilTime = 0;
 	private final Random random = new Random();
 	private static final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
@@ -182,60 +181,53 @@ public class ExampleModClient implements ClientModInitializer {
 									client.player.sendSystemMessage(Component.literal("Fishing hologram detected! Simulating right click..."));
 								}
 								lastDetectionTime = currentTime;
-								if (AutoFisherConfig.slugfish && (temp != false)) {
-									temp = false;
-								}
-								if (temp != true) {
-									// Simulate human-like delay before right-clicking (complex randomization: 56-129ms)
-									//int baseDelay = 56;
-									//int randomOffset1 = random.nextInt(37); // 0-36ms
-									//int randomOffset2 = random.nextInt(38); // 0-37ms
-									int initialClickDelay = AutoFisherConfig.baseDelay + AutoFisherConfig.randomDelay1 + AutoFisherConfig.randomDelay2; // Total delay will be between 56ms and 129ms
 
-									scheduler.schedule(() -> {
-										Minecraft.getInstance().execute(() -> {
-											if (Minecraft.getInstance().gameMode != null && Minecraft.getInstance().player != null) {
-												// First right-click to reel in the fish
-												Minecraft.getInstance().gameMode.useItem(Minecraft.getInstance().player, InteractionHand.MAIN_HAND);
-												if (AutoFisherConfig.debugMode) {
-													Minecraft.getInstance().player.sendSystemMessage(Component.literal("Right click (reel in) simulated after " + initialClickDelay + "ms."));
-												}
+								// Simulate human-like delay before right-clicking (complex randomization: 56-129ms)
+								//int baseDelay = 56;
+								//int randomOffset1 = random.nextInt(37); // 0-36ms
+								//int randomOffset2 = random.nextInt(38); // 0-37ms
+								int initialClickDelay = AutoFisherConfig.baseDelay + AutoFisherConfig.randomDelay1 + AutoFisherConfig.randomDelay2; // Total delay will be between 56ms and 129ms
 
-												// Handle recast logic based on user's refined requirements
-												if (AutoFisherConfig.enableRecast) {
-													// Generate a random recast delay between 390ms and 980ms
-													//int randomDelay1 = random.nextInt(200); // 0-199
-													//int randomDelay2 = random.nextInt(200); // 0-199
-													//int randomDelay3 = random.nextInt(200); // 0-199
-													int finalRecastDelay = AutoFisherConfig.baseRecastDelay + (AutoFisherConfig.randomDelay1 + AutoFisherConfig.randomDelay2 + AutoFisherConfig.randomDelay3) % (AutoFisherConfig.maxRecastDelay - AutoFisherConfig.minRecastDelay + 1); // Scale to 390-980
-
-													// Always schedule a recast if enableRecast is true.
-													// This will be the default recast if Fireveil is disabled,
-													// or the "just recast" if Fireveil is enabled but no trigger message appears.
-													if (AutoFisherConfig.debugMode) {
-														client.player.sendSystemMessage(Component.literal("Scheduling initial recast. Fireveil enabled: " + AutoFisherConfig.fireveilEnabled + ". Recast delay: " + finalRecastDelay + "ms."));
-													}
-													recastTask = scheduler.schedule(() -> {
-														Minecraft.getInstance().execute(() -> {
-															if (Minecraft.getInstance().gameMode != null && Minecraft.getInstance().player != null) {
-																Minecraft.getInstance().gameMode.useItem(Minecraft.getInstance().player, InteractionHand.MAIN_HAND);
-																if (AutoFisherConfig.debugMode) {
-																	client.player.sendSystemMessage(Component.literal("Right click (initial recast) simulated after " + finalRecastDelay + "ms."));
-																}
-															}
-														});
-													}, finalRecastDelay, TimeUnit.MILLISECONDS);
-												} else if (AutoFisherConfig.debugMode) {
-													client.player.sendSystemMessage(Component.literal("Recast not scheduled: enableRecast=" + AutoFisherConfig.enableRecast));
-												}
+								scheduler.schedule(() -> {
+									Minecraft.getInstance().execute(() -> {
+										if (Minecraft.getInstance().gameMode != null && Minecraft.getInstance().player != null) {
+											// First right-click to reel in the fish
+											Minecraft.getInstance().gameMode.useItem(Minecraft.getInstance().player, InteractionHand.MAIN_HAND);
+											if (AutoFisherConfig.debugMode) {
+												Minecraft.getInstance().player.sendSystemMessage(Component.literal("Right click (reel in) simulated after " + initialClickDelay + "ms."));
 											}
-										});
-									}, initialClickDelay, TimeUnit.MILLISECONDS);
-									if (AutoFisherConfig.slugfish == true) {
-										temp = true;
-									}
-									break; // Only log once per detection cycle
-								}
+
+											// Handle recast logic based on user's refined requirements
+											if (AutoFisherConfig.enableRecast) {
+												// Generate a random recast delay between 390ms and 980ms
+												//int randomDelay1 = random.nextInt(200); // 0-199
+												//int randomDelay2 = random.nextInt(200); // 0-199
+												//int randomDelay3 = random.nextInt(200); // 0-199
+												int finalRecastDelay = AutoFisherConfig.baseRecastDelay + (AutoFisherConfig.randomDelay1 + AutoFisherConfig.randomDelay2 + AutoFisherConfig.randomDelay3) % (AutoFisherConfig.maxRecastDelay - AutoFisherConfig.minRecastDelay + 1); // Scale to 390-980
+
+												// Always schedule a recast if enableRecast is true.
+												// This will be the default recast if Fireveil is disabled,
+												// or the "just recast" if Fireveil is enabled but no trigger message appears.
+												if (AutoFisherConfig.debugMode) {
+													client.player.sendSystemMessage(Component.literal("Scheduling initial recast. Fireveil enabled: " + AutoFisherConfig.fireveilEnabled + ". Recast delay: " + finalRecastDelay + "ms."));
+												}
+												recastTask = scheduler.schedule(() -> {
+													Minecraft.getInstance().execute(() -> {
+														if (Minecraft.getInstance().gameMode != null && Minecraft.getInstance().player != null) {
+															Minecraft.getInstance().gameMode.useItem(Minecraft.getInstance().player, InteractionHand.MAIN_HAND);
+															if (AutoFisherConfig.debugMode) {
+																client.player.sendSystemMessage(Component.literal("Right click (initial recast) simulated after " + finalRecastDelay + "ms."));
+															}
+														}
+													});
+												}, finalRecastDelay, TimeUnit.MILLISECONDS);
+											} else if (AutoFisherConfig.debugMode) {
+												client.player.sendSystemMessage(Component.literal("Recast not scheduled: enableRecast=" + AutoFisherConfig.enableRecast));
+											}
+										}
+									});
+								}, initialClickDelay, TimeUnit.MILLISECONDS);
+								break; // Only log once per detection cycle
 							}
 						}
 					}
