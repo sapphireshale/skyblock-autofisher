@@ -182,7 +182,7 @@ public class ExampleModClient implements ClientModInitializer {
 									client.player.sendSystemMessage(Component.literal("Fishing hologram detected! Simulating right click..."));
 								}
 								lastDetectionTime = currentTime;
-								if (slugfish) {
+								if (AutoFisherConfig.slugfish) {
 									 if (temp){
 										 temp = false;
 										 break;
