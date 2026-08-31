@@ -58,7 +58,7 @@ public class AutoFisherConfig {
             randomDelay1 = Integer.parseInt(properties.getProperty("randomDelay1", "37"));
             randomDelay2 = Integer.parseInt(properties.getProperty("randomDelay2", "38"));
             randomDelay3 = Integer.parseInt(properties.getProperty("randomDelay3", "100"));
-            slugfish = Integer.parseInt(properties.getProperty("slugfish", "false"));
+            slugfish = Integer.parseBoolean(properties.getProperty("slugfish", "false"));
             
         } catch (IOException | NumberFormatException e) {
             System.err.println("Failed to load AutoFisher config: " + e.getMessage());
