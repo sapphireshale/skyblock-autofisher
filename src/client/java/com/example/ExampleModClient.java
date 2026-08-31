@@ -181,6 +181,15 @@ public class ExampleModClient implements ClientModInitializer {
 									client.player.sendSystemMessage(Component.literal("Fishing hologram detected! Simulating right click..."));
 								}
 								lastDetectionTime = currentTime;
+								if (slugfish) {
+									 if (temp == true){
+										 temp == false;
+										 break;
+									 }
+									else {
+										temp == true;
+									}
+								}
 
 								// Simulate human-like delay before right-clicking (complex randomization: 56-129ms)
 								//int baseDelay = 56;
